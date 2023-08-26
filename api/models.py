@@ -5,7 +5,7 @@ from sqlalchemy.ext.hybrid import hybrid_property
 from flask_login import UserMixin
 import re
 
-from apiconfig import db, bcrypt
+from api.config import db, bcrypt
 
 
 class User(db.Model, SerializerMixin, UserMixin):
