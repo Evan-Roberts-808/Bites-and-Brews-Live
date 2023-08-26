@@ -1,27 +1,41 @@
-D=False
-C='../client/dist'
-from flask import Flask,render_template as E
-from flask_bcrypt import Bcrypt as F
+from flask import Flask, render_template
+from flask_bcrypt import Bcrypt
 from flask_cors import CORS
-from flask_migrate import Migrate as G
+from flask_migrate import Migrate
 from flask_restful import Api
-from flask_sqlalchemy import SQLAlchemy as H
-from sqlalchemy import MetaData as I
+from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import MetaData
 import os
-from dotenv import load_dotenv as J
-J()
-A=Flask(__name__,static_url_path='',static_folder=C,template_folder=C)
-A.config['SQLALCHEMY_DATABASE_URI']=os.environ.get('DATABASE_URI')
-A.config['SQLALCHEMY_TRACK_MODIFICATIONS']=D
-A.json.compact=D
-A.secret_key=os.environ.get('SESSION_KEY')
-K=I(naming_convention={'ix':'ix_%(column_0_label)s','uq':'uq_%(table_name)s_%(column_0_name)s','ck':'ck_%(table_name)s_%(constraint_name)s','fk':'fk_%(table_name)s_%(column_0_name)s_%(referred_table_name)s','pk':'pk_%(table_name)s'})
-B=H(metadata=K)
-L=G(A,B)
-B.init_app(A)
-M=F(A)
-@A.route('/',defaults={'path':''})
-@A.route('/<path:path>')
-def N(path):return E('index.html')
-O=Api(A)
-CORS(A)
+from dotenv import load_dotenv
+load_dotenv()
+
+app = Flask(__name__, static_url_path='',
+            static_folder='../client/dist', template_folder='../client/dist')
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URI')
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.json.compact = False
+app.secret_key = os.environ.get('SESSION_KEY')
+
+metadata = MetaData(naming_convention={
+    "ix": "ix_%(column_0_label)s",
+    "uq": "uq_%(table_name)s_%(column_0_name)s",
+    "ck": "ck_%(table_name)s_%(constraint_name)s",
+    "fk": "fk_%(table_name)s_%(column_0_name)s_%(referred_table_name)s",
+    "pk": "pk_%(table_name)s",
+})
+
+db = SQLAlchemy(metadata=metadata)
+migrate = Migrate(app, db)
+db.init_app(app)
+
+bcrypt = Bcrypt(app)
+
+
+@app.route('/', defaults={'path': ''})
+@app.route('/<path:path>')
+def index(path):
+    return render_template("index.html")
+
+
+api = Api(app)
+CORS(app)
