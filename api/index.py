@@ -78,59 +78,59 @@ class CheckSession(Resource):
 
 # User Details Routes
 
-class Users(Resource):
-    @login_required
-    def get(self):
-        try:
-            user = current_user
-            if user:
-                return {
-                    "id": user.id,
-                    "name": user.name,
-                    "email": user.email
-                }, 200
-            else:
-                return {"error": "User not found"}, 404
-        except:
-            return {"error": "An error occurred while fetching the user"}, 500
+# class Users(Resource):
+#     @login_required
+#     def get(self):
+#         try:
+#             user = current_user
+#             if user:
+#                 return {
+#                     "id": user.id,
+#                     "name": user.name,
+#                     "email": user.email
+#                 }, 200
+#             else:
+#                 return {"error": "User not found"}, 404
+#         except:
+#             return {"error": "An error occurred while fetching the user"}, 500
 
-    @login_required
-    def patch(self):
-        try:
-            user = current_user
-            if user:
-                data = request.get_json()
-                user.email = data.get("email", user.email)
+#     @login_required
+#     def patch(self):
+#         try:
+#             user = current_user
+#             if user:
+#                 data = request.get_json()
+#                 user.email = data.get("email", user.email)
 
-                # Hash the password before updating
-                password = data.get("password")
-                if password:
-                    hashed_password = generate_password_hash(password)
-                    user._password_hash = hashed_password
+#                 # Hash the password before updating
+#                 password = data.get("password")
+#                 if password:
+#                     hashed_password = generate_password_hash(password)
+#                     user._password_hash = hashed_password
 
-                db.session.commit()
-                return {
-                    "id": user.id,
-                    "name": user.name,
-                    "email": user.email
-                }, 200
-            else:
-                return {"error": "User not found"}, 404
-        except:
-            return {"error": "An error occurred while updating the user"}, 500
+#                 db.session.commit()
+#                 return {
+#                     "id": user.id,
+#                     "name": user.name,
+#                     "email": user.email
+#                 }, 200
+#             else:
+#                 return {"error": "User not found"}, 404
+#         except:
+#             return {"error": "An error occurred while updating the user"}, 500
 
-    @login_required
-    def delete(self):
-        try:
-            user = current_user
-            if user:
-                db.session.delete(user)
-                db.session.commit()
-                return {}, 204
-            else:
-                return {"error": "User not found"}, 404
-        except:
-            return {"error": "An error occurred while deleting the user"}, 500
+#     @login_required
+#     def delete(self):
+#         try:
+#             user = current_user
+#             if user:
+#                 db.session.delete(user)
+#                 db.session.commit()
+#                 return {}, 204
+#             else:
+#                 return {"error": "User not found"}, 404
+#         except:
+#             return {"error": "An error occurred while deleting the user"}, 500
 
 
 class UserFavorites(Resource):
@@ -217,7 +217,7 @@ class UserFavoritesById(Resource):
 api.add_resource(Login, '/logins')
 api.add_resource(Signup, '/signups')
 api.add_resource(CheckSession, '/check_session')
-api.add_resource(Users, '/users')
+# api.add_resource(Users, '/users')
 api.add_resource(UserFavorites, '/users/favorites')
 api.add_resource(UserFavoritesById, '/users/favorites/<int:id>')
 
