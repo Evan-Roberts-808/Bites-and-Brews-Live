@@ -1,1 +1,199 @@
-import { useParams } from "react-router-dom"; import React, { useState, useEffect } from "react"; import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"; import { faThumbsUp, faHeart } from "@fortawesome/free-solid-svg-icons"; import Container from "react-bootstrap/Container"; import Figure from "react-bootstrap/Figure"; import Table from "react-bootstrap/Table"; import Card from "react-bootstrap/Card"; import ListGroup from "react-bootstrap/ListGroup"; import { Link } from "react-router-dom"; function RecipesDetails() { const { id } = useParams(); const [recipeDetails, setRecipeDetails] = useState([]); const [ingredients, setIngredients] = useState([]); const [instructions, setInstructions] = useState([]); const [likeCount, setLikeCount] = useState(0); const [isFavorite, setIsFavorite] = useState(false); const [cocktailData, setCocktailData] = useState([]); const [displayRecommendation, setDisplayRecommendation] = useState(false); const [recommendedBrew, setRecommendedBrew] = useState([]); useEffect(() => { fetch("/cocktail") .then((r) => r.json()) .then((data) => setCocktailData(data)); }, []); useEffect(() => { fetch(`/recipe/${id}`) .then((r) => r.json()) .then((data) => { setRecipeDetails(data); setLikeCount(data.likes); setIngredients(data.ingredients); setInstructions(data.instructions); }); }, [id]); const mappedIngredients = ingredients.map((el) => { return <ListGroup.Item>{el}</ListGroup.Item>; }); const mappedInstructions = instructions.map((el, index) => { return <li key={index}>{el}</li>; }); const handleLikeClick = () => { fetch(`/recipe/${id}`, { method: "PATCH", headers: { "Content-Type": "application/json", }, body: JSON.stringify({ likes: recipeDetails.likes + 1, }), }) .then((response) => response.json()) .then((data) => { setLikeCount(data.likes); }) .catch((error) => { console.error("Error:", error); }); }; function handleFavorite() { setIsFavorite(prevIsFavorite => !prevIsFavorite); fetch("/users/favorites", { method: "POST", headers: { Accept: "application/json", "Content-Type": "application/json", }, body: JSON.stringify(recipeDetails), }); } function findCocktail(alcohol) { const filteredCocktails = cocktailData.filter((el) => el.drink_type && el.drink_type.includes(alcohol)); const randomIndex = Math.floor(Math.random() * filteredCocktails.length); const randomCocktail = filteredCocktails[randomIndex]; return randomCocktail ? randomCocktail : null; } let recommendedCocktail = null; function getCocktailPairing() { const cuisine = recipeDetails.cuisine; switch (cuisine) { case "mexican": recommendedCocktail = findCocktail("margarita"); break; case "japanese": recommendedCocktail = findCocktail("cocktail"); break; case "chinese": recommendedCocktail = findCocktail("cocktail"); break; case "korean": recommendedCocktail = findCocktail("cocktail"); break; case "thai": recommendedCocktail = findCocktail("cocktail"); break; case "italian": recommendedCocktail = findCocktail("sangria"); break; case "greek": recommendedCocktail = findCocktail("daquiri"); break; case "mediterranean": recommendedCocktail = findCocktail("mojito"); break; case "spanish": recommendedCocktail = findCocktail("mojito"); break; case "french": recommendedCocktail = findCocktail("martini"); break; case "caribbean": recommendedCocktail = findCocktail("daquiri"); break; case "american": recommendedCocktail = findCocktail("cocktail"); break; default: console.log("no recommendation found"); break; } console.log(recommendedCocktail); setRecommendedBrew(recommendedCocktail); } console.log(recommendedBrew); const url = `/cocktails/${recommendedBrew.id}`; return ( <Container> <div className="row"> <Figure className="col-sm-5"> <Figure.Image src={recipeDetails.image} alt={recipeDetails.name} /> </Figure> <div className="offset-sm-1 col-sm-5 my-auto"> <h2> {recipeDetails.name + " "} <FontAwesomeIcon icon={faHeart} style={{ color: isFavorite ? "#ff3b3f" : "#A9A9A9" }} onClick={handleFavorite} id="heartIcon" className={isFavorite ? "active" : ""} /> </h2> <h4>{recipeDetails.description}</h4> <p> <label>Likes:</label> {" " + likeCount}{" "} <FontAwesomeIcon icon={faThumbsUp} onClick={handleLikeClick} style={{ color: "#ff3b3f", }} />{" "} </p> <button onClick={getCocktailPairing}>Recommend a brew?</button> <Link to={url} style={{textDecoration: "none !important"}}> <p style={{textDecoration: "none !important"}} className="recommended-link" display={displayRecommendation ? "" : "none"}> {recommendedBrew.name} </p> </Link> <Table striped className="custom-table"> <thead> <tr> <th>Prep Time</th> <th>Cook Time</th> <th>Additional Time</th> <th>Total Time</th> </tr> </thead> <tbody> <tr> <td>{recipeDetails.preptime}</td> <td>{recipeDetails.cooktime}</td> <td>{recipeDetails.waittime}</td> <td>{recipeDetails.totaltime}</td> </tr> </tbody> </Table> </div> </div> <div className="row"> <Card id="ingredients" className="col-sm-5 align-self-start"> <Card.Header>Ingredients</Card.Header> <ListGroup variant="flush">{mappedIngredients}</ListGroup> </Card> <div className="offset-sm-1 col-sm-5"> <h2>Instructions</h2> <ol>{mappedInstructions}</ol> </div> </div> </Container> ); } export default RecipesDetails; 
+import { useParams } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { FaThumbsUp, FaHeart } from "react-icons/fa6";
+import Container from "react-bootstrap/Container";
+import Figure from "react-bootstrap/Figure";
+import Table from "react-bootstrap/Table";
+import Card from "react-bootstrap/Card";
+import ListGroup from "react-bootstrap/ListGroup";
+import { Link } from "react-router-dom";
+function RecipesDetails() {
+  const { id } = useParams();
+  const [recipeDetails, setRecipeDetails] = useState([]);
+  const [ingredients, setIngredients] = useState([]);
+  const [instructions, setInstructions] = useState([]);
+  const [likeCount, setLikeCount] = useState(0);
+  const [isFavorite, setIsFavorite] = useState(false);
+  const [cocktailData, setCocktailData] = useState([]);
+  const [displayRecommendation, setDisplayRecommendation] = useState(false);
+  const [recommendedBrew, setRecommendedBrew] = useState([]);
+  useEffect(() => {
+    fetch("/cocktail")
+      .then((r) => r.json())
+      .then((data) => setCocktailData(data));
+  }, []);
+  useEffect(() => {
+    fetch(`/recipe/${id}`)
+      .then((r) => r.json())
+      .then((data) => {
+        setRecipeDetails(data);
+        setLikeCount(data.likes);
+        setIngredients(data.ingredients);
+        setInstructions(data.instructions);
+      });
+  }, [id]);
+  const mappedIngredients = ingredients.map((el) => {
+    return <ListGroup.Item>{el}</ListGroup.Item>;
+  });
+  const mappedInstructions = instructions.map((el, index) => {
+    return <li key={index}>{el}</li>;
+  });
+  const handleLikeClick = () => {
+    fetch(`/recipe/${id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ likes: recipeDetails.likes + 1 }),
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        setLikeCount(data.likes);
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+      });
+  };
+  function handleFavorite() {
+    setIsFavorite((prevIsFavorite) => !prevIsFavorite);
+    fetch("/users/favorites", {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(recipeDetails),
+    });
+  }
+  function findCocktail(alcohol) {
+    const filteredCocktails = cocktailData.filter(
+      (el) => el.drink_type && el.drink_type.includes(alcohol)
+    );
+    const randomIndex = Math.floor(Math.random() * filteredCocktails.length);
+    const randomCocktail = filteredCocktails[randomIndex];
+    return randomCocktail ? randomCocktail : null;
+  }
+  let recommendedCocktail = null;
+  function getCocktailPairing() {
+    const cuisine = recipeDetails.cuisine;
+    switch (cuisine) {
+      case "mexican":
+        recommendedCocktail = findCocktail("margarita");
+        break;
+      case "japanese":
+        recommendedCocktail = findCocktail("cocktail");
+        break;
+      case "chinese":
+        recommendedCocktail = findCocktail("cocktail");
+        break;
+      case "korean":
+        recommendedCocktail = findCocktail("cocktail");
+        break;
+      case "thai":
+        recommendedCocktail = findCocktail("cocktail");
+        break;
+      case "italian":
+        recommendedCocktail = findCocktail("sangria");
+        break;
+      case "greek":
+        recommendedCocktail = findCocktail("daquiri");
+        break;
+      case "mediterranean":
+        recommendedCocktail = findCocktail("mojito");
+        break;
+      case "spanish":
+        recommendedCocktail = findCocktail("mojito");
+        break;
+      case "french":
+        recommendedCocktail = findCocktail("martini");
+        break;
+      case "caribbean":
+        recommendedCocktail = findCocktail("daquiri");
+        break;
+      case "american":
+        recommendedCocktail = findCocktail("cocktail");
+        break;
+      default:
+        console.log("no recommendation found");
+        break;
+    }
+    console.log(recommendedCocktail);
+    setRecommendedBrew(recommendedCocktail);
+  }
+  console.log(recommendedBrew);
+  const url = `/cocktails/${recommendedBrew.id}`;
+  return (
+    <Container>
+      {" "}
+      <div className="row">
+        {" "}
+        <Figure className="col-sm-5">
+          {" "}
+          <Figure.Image
+            src={recipeDetails.image}
+            alt={recipeDetails.name}
+          />{" "}
+        </Figure>{" "}
+        <div className="offset-sm-1 col-sm-5 my-auto">
+          {" "}
+          <h2>
+            {" "}
+            {recipeDetails.name + " "}{" "}
+            <FaHeart style={{color: isFavorite ? "#ff3b3f" : "#A9A9A9"}} onClick={handleFavorite} className={isFavorite ? "active" : ""} />
+
+          </h2>{" "}
+          <h4>{recipeDetails.description}</h4>{" "}
+          <p>
+            {" "}
+            <label>Likes:</label> {" " + likeCount}{" "}
+            <FaThumbsUp onClick={handleLikeClick} style={{color: "#ff3b3f"}} />
+          </p>{" "}
+          <button onClick={getCocktailPairing}>Recommend a brew?</button>{" "}
+          <Link to={url} style={{ textDecoration: "none !important" }}>
+            {" "}
+            <p
+              style={{ textDecoration: "none !important" }}
+              className="recommended-link"
+              display={displayRecommendation ? "" : "none"}
+            >
+              {" "}
+              {recommendedBrew.name}{" "}
+            </p>{" "}
+          </Link>{" "}
+          <Table striped className="custom-table">
+            {" "}
+            <thead>
+              {" "}
+              <tr>
+                {" "}
+                <th>Prep Time</th> <th>Cook Time</th> <th>Additional Time</th>{" "}
+                <th>Total Time</th>{" "}
+              </tr>{" "}
+            </thead>{" "}
+            <tbody>
+              {" "}
+              <tr>
+                {" "}
+                <td>{recipeDetails.preptime}</td>{" "}
+                <td>{recipeDetails.cooktime}</td>{" "}
+                <td>{recipeDetails.waittime}</td>{" "}
+                <td>{recipeDetails.totaltime}</td>{" "}
+              </tr>{" "}
+            </tbody>{" "}
+          </Table>{" "}
+        </div>{" "}
+      </div>{" "}
+      <div className="row">
+        {" "}
+        <Card id="ingredients" className="col-sm-5 align-self-start">
+          {" "}
+          <Card.Header>Ingredients</Card.Header>{" "}
+          <ListGroup variant="flush">{mappedIngredients}</ListGroup>{" "}
+        </Card>{" "}
+        <div className="offset-sm-1 col-sm-5">
+          {" "}
+          <h2>Instructions</h2> <ol>{mappedInstructions}</ol>{" "}
+        </div>{" "}
+      </div>{" "}
+    </Container>
+  );
+}
+export default RecipesDetails;

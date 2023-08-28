@@ -1,6 +1,5 @@
 import { useParams } from "react-router-dom";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faThumbsUp, faHeart } from "@fortawesome/free-solid-svg-icons";
+import { FaThumbsUp, FaHeart } from "react-icons/fa6";
 import React, { useState, useEffect } from "react";
 import Container from "react-bootstrap/Container";
 import Figure from "react-bootstrap/Figure";
@@ -159,22 +158,13 @@ function CocktailsDetails() {
           <h2>
             {" "}
             {cocktailDetails.name + " "}{" "}
-            <FontAwesomeIcon
-              icon={faHeart}
-              style={{ color: isFavorite ? "#ff3b3f" : "#A9A9A9" }}
-              onClick={handleFavorite}
-              className={isFavorite ? "active" : ""}
-            />{" "}
+            <FaHeart style={{color: isFavorite ? "#ff3b3f" : "#A9A9A9"}} onClick={handleFavorite} className={isFavorite ? "active" : ""} />
           </h2>{" "}
           <h4>{cocktailDetails.description}</h4>{" "}
           <p>
             {" "}
             <label>Likes:</label> {likeCount + " "}{" "}
-            <FontAwesomeIcon
-              icon={faThumbsUp}
-              onClick={handleLikeClick}
-              style={{ color: "#ff3b3f" }}
-            />{" "}
+            <FaThumbsUp onClick={handleLikeClick} style={{color: "#ff3b3f"}} />
           </p>{" "}
           <button onClick={getRecipePairing}>Recommend a bite?</button>{" "}
           <Link to={url}>
