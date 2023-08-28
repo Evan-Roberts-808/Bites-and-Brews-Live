@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import FavoritesCards from "./FavoritesCards";
 import Container from "react-bootstrap/Container";
-import FaMagnifyingGlass from "react-icons/fa6";
+import { FaMagnifyingGlass } from "react-icons/fa6";
 
 function FavoritesPage() {
   const [allFavorites, setAllFavorites] = useState([]);

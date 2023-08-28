@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import Cards from "./Cards";
 import Pagination from "react-bootstrap/Pagination";
 import Container from "react-bootstrap/Container";
-import FaMagnifyingGlass from "react-icons/fa6";
+import { FaMagnifyingGlass } from "react-icons/fa6";
 import Offcanvas from "react-bootstrap/Offcanvas";
 function RecipesPage({ darkMode }) {
   const [allRecipes, setAllRecipes] = useState([]);
