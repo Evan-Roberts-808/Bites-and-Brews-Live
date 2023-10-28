@@ -31,9 +31,17 @@ db.init_app(app)
 bcrypt = Bcrypt(app)
 
 
-@app.route('/', defaults={'path': ''})
-@app.route('/<path:path>')
-def index(path):
+@app.route('/')
+@app.route('/login')
+@app.route('/signup')
+@app.route('/recipes')
+@app.route('/cocktails')
+@app.route('/favorites')
+@app.route('/submit')
+@app.route('/recipes/:id')
+@app.route('/cocktails/:id')
+@app.route('/favorites/:id')
+def index(id=0):
     return render_template("index.html")
 
 
